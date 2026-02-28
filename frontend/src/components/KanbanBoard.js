@@ -2,8 +2,7 @@ import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { ScrollArea } from '../components/ui/scroll-area';
-import { Plus, GripVertical, Calendar, User } from 'lucide-react';
+import { Plus, GripVertical, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 
 const PRIORITY_STYLES = {
@@ -96,7 +95,7 @@ export const KanbanBoard = ({ columns, tasks, members, onTaskMove, onTaskClick, 
           return (
             <div
               key={column.id}
-              className="flex flex-col min-w-[280px] max-w-[320px] flex-1"
+              className="flex flex-col min-w-[280px] max-w-[320px] flex-1 min-h-0"
               data-testid={`kanban-column-${column.id}`}
             >
               {/* Column Header */}
@@ -127,28 +126,26 @@ export const KanbanBoard = ({ columns, tasks, members, onTaskMove, onTaskClick, 
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`flex-1 rounded-lg p-2 min-h-[120px] transition-colors duration-150 ${
+                    className={`flex-1 min-h-[120px] rounded-lg p-2 overflow-y-auto transition-colors duration-150 ${
                       snapshot.isDraggingOver
                         ? 'bg-indigo-500/5 border border-indigo-500/20'
                         : 'bg-muted/30 border border-transparent'
                     }`}
                   >
-                    <ScrollArea className="h-full">
-                      {columnTasks.map((task, index) => (
-                        <Draggable key={task.id} draggableId={task.id} index={index}>
-                          {(provided, snapshot) => (
-                            <TaskCard
-                              task={task}
-                              members={members}
-                              onClick={onTaskClick}
-                              provided={provided}
-                              isDragging={snapshot.isDragging}
-                            />
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </ScrollArea>
+                    {columnTasks.map((task, index) => (
+                      <Draggable key={task.id} draggableId={task.id} index={index}>
+                        {(provided, snapshot) => (
+                          <TaskCard
+                            task={task}
+                            members={members}
+                            onClick={onTaskClick}
+                            provided={provided}
+                            isDragging={snapshot.isDragging}
+                          />
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
                   </div>
                 )}
               </Droppable>
