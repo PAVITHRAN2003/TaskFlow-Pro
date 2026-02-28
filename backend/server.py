@@ -7,6 +7,7 @@ import os
 import logging
 import json
 from pathlib import Path
+from urllib.parse import quote_plus
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import uuid
@@ -17,8 +18,22 @@ from passlib.context import CryptContext
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+# MongoDB connection - encode username/password for special characters (RFC 3986)
+def _encode_mongo_uri(uri: str) -> str:
+    """URL-encode user and password in MongoDB URI to handle special chars like @, #, :"""
+    try:
+        if "://" not in uri or "@" not in uri:
+            return uri
+        scheme, rest = uri.split("://", 1)
+        userinfo, host_part = rest.split("@", 1)
+        if ":" in userinfo:
+            user, _, password = userinfo.partition(":")
+            userinfo = f"{quote_plus(user)}:{quote_plus(password)}"
+        return f"{scheme}://{userinfo}@{host_part}"
+    except Exception:
+        return uri
+
+mongo_url = _encode_mongo_uri(os.environ["MONGO_URL"])
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
