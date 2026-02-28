@@ -25,7 +25,8 @@ def _encode_mongo_uri(uri: str) -> str:
         if "://" not in uri or "@" not in uri:
             return uri
         scheme, rest = uri.split("://", 1)
-        userinfo, host_part = rest.split("@", 1)
+        # Use rsplit so password can contain @
+        userinfo, host_part = rest.rsplit("@", 1)
         if ":" in userinfo:
             user, _, password = userinfo.partition(":")
             userinfo = f"{quote_plus(user)}:{quote_plus(password)}"
