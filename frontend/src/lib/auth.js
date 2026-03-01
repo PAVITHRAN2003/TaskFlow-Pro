@@ -8,6 +8,13 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const logout = useCallback(() => {
+    localStorage.removeItem('taskflow_token');
+    localStorage.removeItem('taskflow_user');
+    setToken(null);
+    setUser(null);
+  }, []);
+
   useEffect(() => {
     const savedToken = localStorage.getItem('taskflow_token');
     const savedUser = localStorage.getItem('taskflow_user');
@@ -24,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [logout]);
 
   const login = useCallback(async (email, password) => {
     const res = await authAPI.login({ email, password });
@@ -44,13 +51,6 @@ export const AuthProvider = ({ children }) => {
     setToken(newToken);
     setUser(userData);
     return userData;
-  }, []);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem('taskflow_token');
-    localStorage.removeItem('taskflow_user');
-    setToken(null);
-    setUser(null);
   }, []);
 
   return (
