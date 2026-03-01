@@ -698,14 +698,20 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup():
-    # Create indexes
-    await db.users.create_index("email", unique=True)
-    await db.users.create_index("id", unique=True)
-    await db.projects.create_index("id", unique=True)
-    await db.tasks.create_index("id", unique=True)
-    await db.tasks.create_index([("project_id", 1), ("status", 1), ("order", 1)])
-    await db.activity.create_index([("project_id", 1), ("created_at", -1)])
-    logger.info("TaskFlow Pro API started")
+    async def create_indexes():
+        try:
+            await db.users.create_index("email", unique=True)
+            await db.users.create_index("id", unique=True)
+            await db.projects.create_index("id", unique=True)
+            await db.tasks.create_index("id", unique=True)
+            await db.tasks.create_index([("project_id", 1), ("status", 1), ("order", 1)])
+            await db.activity.create_index([("project_id", 1), ("created_at", -1)])
+            logger.info("TaskFlow Pro API started")
+        except Exception as e:
+            logger.warning(f"Index creation completed with warning: {e}")
+
+    import asyncio
+    asyncio.create_task(create_indexes())
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
